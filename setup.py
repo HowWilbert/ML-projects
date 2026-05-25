@@ -1,8 +1,10 @@
 '''
+Use of Setup.py 
+
 Build entire Machine learning Application as a Package,
 and Deploy it in pypi. 
 
-From there anybody can install this package and use it.
+From there anybody can install this package and use it(even us).
 
 The folders contaning __init__.py file is treated as a package.
 src is our source folder
