@@ -7,4 +7,6 @@ xgboost
 dill
 gunicorn
 ipykernel
+matplotlib
+seaborn
 # -e .
