@@ -4,416 +4,1768 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Neural Academic Intelligence System — Predict student math performance using advanced AI and machine learning algorithms." />
+    <title>N.A.I.S. // Neural Academic Intelligence System</title>
 
-    <title>Student Performance Predictor</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Google Font -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <!-- Icons -->
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
+        :root {
+            --cyan: #00f5ff;
+            --cyan-dim: #00c8d4;
+            --neon-green: #39ff14;
+            --electric-blue: #0066ff;
+            --deep-purple: #6600cc;
+            --magenta: #ff00aa;
+            --dark-bg: #020510;
+            --panel-bg: rgba(0, 20, 40, 0.85);
+            --border-glow: rgba(0, 245, 255, 0.3);
+            --text-primary: #e0f7ff;
+            --text-secondary: #7ecfdf;
+            --text-dim: #3a7a8a;
+            --scan-line: rgba(0, 245, 255, 0.04);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
+            background-color: var(--dark-bg);
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--text-primary);
             overflow-x: hidden;
-            background:
-                radial-gradient(circle at top left, #5b8cff 0%, transparent 30%),
-                radial-gradient(circle at bottom right, #7f5cff 0%, transparent 30%),
-                linear-gradient(135deg, #0f172a, #111827, #1e293b);
+            position: relative;
         }
 
-        .glass-card {
-            width: 100%;
-            max-width: 950px;
-            padding: 45px;
-            border-radius: 30px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.35),
-                inset 0 1px 1px rgba(255, 255, 255, 0.08);
-            animation: floatCard 0.8s ease;
+        /* ─── SCANLINES OVERLAY ─── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                var(--scan-line) 0px,
+                var(--scan-line) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 9999;
+            animation: scanMove 8s linear infinite;
         }
 
-        @keyframes floatCard {
-            from {
-                opacity: 0;
-                transform: translateY(25px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes scanMove {
+            0% { background-position-y: 0; }
+            100% { background-position-y: 100vh; }
         }
 
-        .title {
-            text-align: center;
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+        /* ─── CANVAS BACKGROUND ─── */
+        #bgCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        .subtitle {
-            text-align: center;
-            color: #cbd5e1;
-            margin-bottom: 40px;
-            font-size: 1rem;
+        /* ─── GRID OVERLAY ─── */
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .section-title {
-            color: white;
-            font-weight: 600;
+        /* ─── MAIN WRAPPER ─── */
+        .main-wrapper {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ─── TOP HUD BAR ─── */
+        .hud-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(0, 245, 255, 0.04);
+            border: 1px solid rgba(0, 245, 255, 0.15);
+            border-radius: 4px;
             margin-bottom: 20px;
-            font-size: 1.1rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            animation: slideDown 0.6s ease forwards;
         }
 
-        .form-label {
-            color: #e2e8f0;
-            font-weight: 500;
-            margin-bottom: 10px;
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .form-control,
-        .form-select {
-            height: 55px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-            padding-left: 18px;
+        .hud-bar .hud-left, .hud-bar .hud-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .hud-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .hud-time {
+            color: var(--cyan);
+            font-size: 0.8rem;
+        }
+
+        /* ─── HEADER ─── */
+        .sys-header {
+            text-align: center;
+            padding: 30px 20px 20px;
+            animation: fadeUp 0.8s ease 0.2s both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sys-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .logo-icon-wrap {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, rgba(0,245,255,0.1), rgba(0,102,255,0.15));
+            border: 2px solid var(--cyan);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--cyan);
+            box-shadow: 0 0 25px rgba(0,245,255,0.4), inset 0 0 20px rgba(0,245,255,0.05);
+            animation: logoPulse 3s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-icon-wrap::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0,245,255,0.1) 50%, transparent 70%);
+            animation: sheen 3s ease infinite;
+        }
+
+        @keyframes sheen {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(0,245,255,0.4), inset 0 0 20px rgba(0,245,255,0.05); }
+            50% { box-shadow: 0 0 40px rgba(0,245,255,0.7), inset 0 0 30px rgba(0,245,255,0.1); }
+        }
+
+        .logo-text-block {
+            text-align: left;
+        }
+
+        .logo-acronym {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.4rem;
+            font-weight: 900;
+            letter-spacing: 6px;
+            background: linear-gradient(90deg, var(--cyan), var(--electric-blue), var(--cyan));
+            background-size: 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s linear infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0%; }
+            100% { background-position: 200%; }
+        }
+
+        .logo-full-name {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .sys-tagline {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            font-weight: 400;
+            margin-top: 8px;
+        }
+
+        .sys-tagline span {
+            color: var(--cyan);
+        }
+
+        /* ─── DIVIDER ─── */
+        .cyber-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .cyber-divider::before, .cyber-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+        }
+
+        .cyber-divider-icon {
+            color: var(--cyan);
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+
+        /* ─── STATS ROW ─── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            max-width: 900px;
+            margin: 0 auto 30px;
+            animation: fadeUp 0.8s ease 0.4s both;
+        }
+
+        .stat-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
             transition: all 0.3s ease;
         }
 
-        .form-control::placeholder {
-            color: #cbd5e1;
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
         }
 
-        .form-select option {
-            color: black;
+        .stat-card:hover::before { transform: scaleX(1); }
+
+        .stat-card:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 30px rgba(0,245,255,0.15), inset 0 0 20px rgba(0,245,255,0.03);
+            transform: translateY(-4px);
         }
 
-        .form-control:focus,
-        .form-select:focus {
-            border-color: #60a5fa;
-            box-shadow: 0 0 20px rgba(96, 165, 250, 0.35);
-            background: rgba(255, 255, 255, 0.12);
-            color: white;
+        .stat-card-icon {
+            font-size: 1.6rem;
+            color: var(--cyan);
+            margin-bottom: 10px;
+            display: block;
+            filter: drop-shadow(0 0 8px var(--cyan));
         }
 
-        .input-group-text {
-            border-radius: 16px 0 0 16px;
-            border: none;
-            background: rgba(255, 255, 255, 0.12);
-            color: white;
+        .stat-card-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .stat-card-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-counter {
+            display: inline-block;
+        }
+
+        .stat-card-sub {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        /* ─── MAIN PANEL ─── */
+        .main-panel {
+            max-width: 950px;
+            margin: 0 auto;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(0,245,255,0.08), 0 20px 60px rgba(0,0,0,0.5);
+            animation: fadeUp 0.8s ease 0.6s both;
+        }
+
+        /* ─── PANEL HEADER ─── */
+        .panel-header {
+            background: linear-gradient(90deg, rgba(0,245,255,0.08), rgba(0,102,255,0.06), transparent);
+            border-bottom: 1px solid var(--border-glow);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .panel-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+
+        .panel-dot:nth-child(1) { background: #ff3b3b; box-shadow: 0 0 6px #ff3b3b; }
+        .panel-dot:nth-child(2) { background: #ffb800; box-shadow: 0 0 6px #ffb800; }
+        .panel-dot:nth-child(3) { background: var(--neon-green); box-shadow: 0 0 6px var(--neon-green); }
+
+        .panel-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+        }
+
+        .panel-header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .panel-badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            padding: 3px 10px;
+            border-radius: 2px;
+            border: 1px solid;
+        }
+
+        .badge-online {
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 8px rgba(57,255,20,0.2);
+        }
+
+        .badge-ai {
+            color: var(--cyan);
+            border-color: var(--cyan);
+            box-shadow: 0 0 8px rgba(0,245,255,0.2);
+        }
+
+        /* ─── PANEL BODY ─── */
+        .panel-body {
+            padding: 36px;
+        }
+
+        /* ─── SECTION LABELS ─── */
+        .section-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--cyan);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border-glow), transparent);
+        }
+
+        .section-label i { filter: drop-shadow(0 0 5px var(--cyan)); }
+
+        /* ─── FORM GRID ─── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .field-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .field-label i {
+            color: var(--cyan);
+            font-size: 0.7rem;
+            filter: drop-shadow(0 0 4px var(--cyan));
+        }
+
+        /* ─── CUSTOM SELECT ─── */
+        .cyber-select-wrap {
+            position: relative;
+        }
+
+        .cyber-select {
+            width: 100%;
+            height: 50px;
+            background: rgba(0,20,50,0.8);
+            border: 1px solid rgba(0,245,255,0.2);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0 44px 0 16px;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .cyber-select option {
+            background: #041020;
+            color: var(--text-primary);
+        }
+
+        .cyber-select:focus, .cyber-select:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0,245,255,0.2), inset 0 0 15px rgba(0,245,255,0.03);
+            background: rgba(0,30,60,0.9);
+        }
+
+        .cyber-select-wrap::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--cyan);
+            font-size: 0.7rem;
+            pointer-events: none;
+            transition: transform 0.3s ease;
+        }
+
+        /* ─── CUSTOM INPUT ─── */
+        .cyber-input-wrap {
+            position: relative;
+        }
+
+        .cyber-input {
+            width: 100%;
+            height: 50px;
+            background: rgba(0,20,50,0.8);
+            border: 1px solid rgba(0,245,255,0.2);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0 16px 0 44px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .cyber-input::placeholder {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .cyber-input:focus, .cyber-input:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0,245,255,0.2), inset 0 0 15px rgba(0,245,255,0.03);
+            background: rgba(0,30,60,0.9);
+        }
+
+        .cyber-input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--cyan);
+            font-size: 0.85rem;
+            filter: drop-shadow(0 0 4px var(--cyan));
+            pointer-events: none;
+        }
+
+        /* ─── SCORE SLIDER DISPLAY ─── */
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .score-bar-wrap {
+            flex: 1;
+            height: 6px;
+            background: rgba(0,245,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid rgba(0,245,255,0.15);
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--electric-blue), var(--cyan));
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px var(--cyan);
+        }
+
+        .score-display-val {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            color: var(--cyan);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* ─── FIELD VALIDATION INDICATOR ─── */
+        .field-status {
+            position: absolute;
+            right: 44px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .field-status.valid { color: var(--neon-green); opacity: 1; }
+        .field-status.invalid { color: #ff3b3b; opacity: 1; }
+
+        /* ─── PREDICT BUTTON ─── */
+        .predict-btn-wrap {
+            position: relative;
+            margin-top: 10px;
         }
 
         .btn-predict {
             width: 100%;
-            height: 60px;
-            border: none;
-            border-radius: 18px;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-            color: white;
-            font-size: 1.1rem;
+            height: 62px;
+            background: transparent;
+            border: 2px solid var(--cyan);
+            border-radius: 8px;
+            color: var(--cyan);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
             font-weight: 700;
-            margin-top: 15px;
-            transition: all 0.35s ease;
-            letter-spacing: 0.5px;
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+            letter-spacing: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-predict::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(0,245,255,0.08), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn-predict:hover::before {
+            transform: translateX(100%);
         }
 
         .btn-predict:hover {
-            transform: translateY(-3px) scale(1.01);
-            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.5);
+            background: rgba(0,245,255,0.08);
+            box-shadow: 0 0 40px rgba(0,245,255,0.4), inset 0 0 30px rgba(0,245,255,0.05);
+            letter-spacing: 6px;
         }
 
-        .result-card {
-            margin-top: 35px;
-            padding: 30px;
-            border-radius: 22px;
+        .btn-predict:active {
+            transform: scale(0.98);
+        }
+
+        .btn-predict-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-corner {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-color: var(--cyan);
+            border-style: solid;
+            transition: all 0.3s ease;
+        }
+
+        .btn-corner.tl { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+        .btn-corner.tr { top: -2px; right: -2px; border-width: 2px 2px 0 0; }
+        .btn-corner.bl { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; }
+        .btn-corner.br { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+
+        .btn-predict:hover .btn-corner { width: 18px; height: 18px; }
+
+        /* ─── LOADING ANIMATION ─── */
+        .btn-loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-loading-bar {
+            width: 4px;
+            height: 20px;
+            background: var(--cyan);
+            border-radius: 2px;
+            animation: loadBar 1s ease infinite;
+        }
+
+        .btn-loading-bar:nth-child(2) { animation-delay: 0.15s; }
+        .btn-loading-bar:nth-child(3) { animation-delay: 0.3s; }
+        .btn-loading-bar:nth-child(4) { animation-delay: 0.45s; }
+        .btn-loading-bar:nth-child(5) { animation-delay: 0.6s; }
+
+        @keyframes loadBar {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.3; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+
+        /* ─── RESULT SECTION ─── */
+        .result-section {
+            margin-top: 30px;
+            animation: resultAppear 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes resultAppear {
+            0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .result-panel {
+            background: rgba(0,10,30,0.95);
+            border: 1px solid var(--cyan);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,245,255,0.15), inset 0 0 40px rgba(0,245,255,0.02);
+        }
+
+        .result-header {
+            background: linear-gradient(90deg, rgba(0,245,255,0.1), rgba(0,102,255,0.08), transparent);
+            border-bottom: 1px solid var(--border-glow);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-header-icon {
+            color: var(--cyan);
+            filter: drop-shadow(0 0 8px var(--cyan));
+        }
+
+        .result-header-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            letter-spacing: 3px;
+        }
+
+        .result-body {
+            padding: 36px;
             text-align: center;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            animation: fadeIn 0.6s ease;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .result-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
         }
 
-        .result-card h2 {
-            color: white;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
+        .result-score-wrap {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 24px;
         }
 
-        .score {
-            font-size: 4rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #60a5fa, #c084fc);
-
-            background-clip: text;
+        .result-score {
+            font-family: 'Orbitron', monospace;
+            font-size: 5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyan), var(--electric-blue), var(--cyan));
+            background-size: 200%;
             -webkit-background-clip: text;
-
-            color: transparent;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(0,245,255,0.5));
+            line-height: 1;
         }
 
-        .mini-card {
-            padding: 18px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.05);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            margin-bottom: 20px;
-            transition: 0.3s ease;
+        .result-score-unit {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            margin-top: 6px;
         }
 
-        .mini-card:hover {
-            transform: translateY(-4px);
-            background: rgba(255, 255, 255, 0.08);
+        /* ─── RESULT GAUGE ─── */
+        .result-gauge-wrap {
+            max-width: 400px;
+            margin: 0 auto 24px;
         }
 
-        .mini-card i {
-            font-size: 1.8rem;
-            color: #60a5fa;
-            margin-bottom: 10px;
+        .result-gauge-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
         }
 
-        .mini-card h5 {
-            color: white;
-            font-size: 1rem;
+        .result-gauge-bar {
+            height: 10px;
+            background: rgba(0,245,255,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid rgba(0,245,255,0.15);
+            position: relative;
+        }
+
+        .result-gauge-fill {
+            height: 100%;
+            border-radius: 5px;
+            position: relative;
+            transition: width 1.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            width: 0%;
+        }
+
+        .result-gauge-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: white;
+            border-radius: 2px;
+            box-shadow: 0 0 10px white;
+        }
+
+        /* ─── RESULT GRADE BADGE ─── */
+        .result-grade-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .grade-badge {
+            padding: 8px 18px;
+            border-radius: 4px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            border: 1px solid;
+        }
+
+        .grade-excellent { color: var(--neon-green); border-color: var(--neon-green); background: rgba(57,255,20,0.05); box-shadow: 0 0 15px rgba(57,255,20,0.15); }
+        .grade-good { color: var(--cyan); border-color: var(--cyan); background: rgba(0,245,255,0.05); box-shadow: 0 0 15px rgba(0,245,255,0.15); }
+        .grade-average { color: #ffb800; border-color: #ffb800; background: rgba(255,184,0,0.05); box-shadow: 0 0 15px rgba(255,184,0,0.15); }
+        .grade-below { color: var(--magenta); border-color: var(--magenta); background: rgba(255,0,170,0.05); box-shadow: 0 0 15px rgba(255,0,170,0.15); }
+
+        .result-insight {
+            margin-top: 20px;
+            padding: 14px 20px;
+            background: rgba(0,245,255,0.04);
+            border: 1px solid rgba(0,245,255,0.12);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        .result-insight span {
+            color: var(--cyan);
+            font-style: normal;
             font-weight: 600;
         }
 
-        .mini-card p {
-            color: #cbd5e1;
-            font-size: 0.85rem;
-            margin-top: 5px;
+        /* ─── FOOTER HUD ─── */
+        .footer-hud {
+            max-width: 950px;
+            margin: 20px auto 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--text-dim);
+            border-top: 1px solid rgba(0,245,255,0.08);
+            animation: fadeUp 0.8s ease 1s both;
         }
 
-        @media(max-width:768px) {
-
-            .glass-card {
-                padding: 30px 22px;
-            }
-
-            .title {
-                font-size: 2rem;
-            }
-
-            .score {
-                font-size: 3rem;
-            }
+        .footer-hud-right {
+            display: flex;
+            gap: 16px;
+            align-items: center;
         }
+
+        .footer-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover { color: var(--cyan); }
+
+        /* ─── PARTICLES ─── */
+        .particle {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: var(--cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: particleFloat linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-100px) translateX(var(--drift)); opacity: 0; }
+        }
+
+        /* ─── GLITCH EFFECT ─── */
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: transparent;
+        }
+
+        .glitch::before {
+            color: var(--cyan);
+            animation: glitch1 5s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+        }
+
+        .glitch::after {
+            color: var(--magenta);
+            animation: glitch2 5s infinite;
+            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+        }
+
+        @keyframes glitch1 {
+            0%, 90%, 100% { transform: translate(0); opacity: 0; }
+            92% { transform: translate(-2px, 1px); opacity: 0.8; }
+            94% { transform: translate(2px, -1px); opacity: 0.8; }
+            96% { transform: translate(0); opacity: 0; }
+        }
+
+        @keyframes glitch2 {
+            0%, 90%, 100% { transform: translate(0); opacity: 0; }
+            93% { transform: translate(2px, 2px); opacity: 0.6; }
+            95% { transform: translate(-2px, -2px); opacity: 0.6; }
+            97% { transform: translate(0); opacity: 0; }
+        }
+
+        /* ─── TOOLTIP ─── */
+        .tooltip-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip-wrap .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            background: rgba(0,10,30,0.95);
+            border: 1px solid var(--border-glow);
+            color: var(--text-secondary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            border-radius: 4px;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+
+        .tooltip-wrap:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* ─── CORNER DECORATIONS ─── */
+        .corner-deco {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-color: rgba(0,245,255,0.3);
+            border-style: solid;
+        }
+
+        .corner-deco.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+        .corner-deco.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+        .corner-deco.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+        .corner-deco.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .panel-body { padding: 20px; }
+            .logo-acronym { font-size: 1.6rem; }
+            .result-score { font-size: 3.5rem; }
+            .hud-bar .hud-right { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: 1fr; }
+            .sys-logo { flex-direction: column; text-align: center; }
+            .logo-text-block { text-align: center; }
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark-bg); }
+        ::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
     </style>
 </head>
 
 <body>
 
-    <div class="glass-card">
+    <!-- Background Canvas -->
+    <canvas id="bgCanvas"></canvas>
 
-        <h1 class="title">
-            <i class="fa-solid fa-graduation-cap"></i>
-            Student Performance Predictor
-        </h1>
+    <!-- Grid Overlay -->
+    <div class="grid-overlay"></div>
 
-        <p class="subtitle">
-            Predict Maths Score using AI & Machine Learning
-        </p>
+    <div class="main-wrapper">
 
-        <!-- TOP INFO CARDS -->
-        <div class="row mb-4">
-
-            <div class="col-md-4">
-                <div class="mini-card">
-                    <i class="fa-solid fa-brain"></i>
-                    <h5>ML Powered</h5>
-                    <p>Smart predictions using trained models</p>
+        <!-- ═══ TOP HUD BAR ═══ -->
+        <div class="hud-bar">
+            <div class="hud-left">
+                <div class="hud-status">
+                    <div class="status-dot"></div>
+                    <span>SYS_ONLINE</span>
                 </div>
+                <span>|</span>
+                <span>NODE: ACADEMIC-AI-001</span>
+                <span>|</span>
+                <span>MODEL: CatBoost v1.0</span>
             </div>
-
-            <div class="col-md-4">
-                <div class="mini-card">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <h5>Fast Analysis</h5>
-                    <p>Get instant performance prediction</p>
-                </div>
+            <div class="hud-right">
+                <span>UPTIME: <span id="uptime" style="color:var(--cyan)">00:00:00</span></span>
+                <span>|</span>
+                <span id="hudTime" class="hud-time">--:--:--</span>
+                <span>|</span>
+                <span>LAT: 12ms</span>
             </div>
-
-            <div class="col-md-4">
-                <div class="mini-card">
-                    <i class="fa-solid fa-user-graduate"></i>
-                    <h5>Student Insights</h5>
-                    <p>Understand academic performance better</p>
-                </div>
-            </div>
-
         </div>
 
-        <!-- FORM -->
-        <form action="{{ url_for('predict_datapoint') }}" method="post">
-
-            <div class="row g-4">
-
-                <!-- Gender -->
-                <div class="col-md-6">
-                    <label class="form-label">Gender</label>
-                    <select class="form-select" name="gender" required>
-                        <option selected disabled value="">Select Gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
+        <!-- ═══ HEADER ═══ -->
+        <header class="sys-header">
+            <div class="sys-logo">
+                <div class="logo-icon-wrap">
+                    <i class="fa-solid fa-microchip"></i>
                 </div>
-
-                <!-- Ethnicity -->
-                <div class="col-md-6">
-                    <label class="form-label">Race / Ethnicity</label>
-                    <select class="form-select" name="ethnicity" required>
-                        <option selected disabled value="">Select Group</option>
-                        <option value="group A">Group A</option>
-                        <option value="group B">Group B</option>
-                        <option value="group C">Group C</option>
-                        <option value="group D">Group D</option>
-                        <option value="group E">Group E</option>
-                    </select>
+                <div class="logo-text-block">
+                    <div class="logo-acronym glitch" data-text="N.A.I.S.">N.A.I.S.</div>
+                    <div class="logo-full-name">Neural Academic Intelligence System</div>
                 </div>
-
-                <!-- Parent Education -->
-                <div class="col-md-6">
-                    <label class="form-label">Parental Education</label>
-                    <select class="form-select" name="parental_level_of_education" required>
-                        <option selected disabled value="">Select Education</option>
-                        <option value="associate's degree">Associate's Degree</option>
-                        <option value="bachelor's degree">Bachelor's Degree</option>
-                        <option value="high school">High School</option>
-                        <option value="master's degree">Master's Degree</option>
-                        <option value="some college">Some College</option>
-                        <option value="some high school">Some High School</option>
-                    </select>
-                </div>
-
-                <!-- Lunch -->
-                <div class="col-md-6">
-                    <label class="form-label">Lunch Type</label>
-                    <select class="form-select" name="lunch" required>
-                        <option selected disabled value="">Select Lunch</option>
-                        <option value="free/reduced">Free / Reduced</option>
-                        <option value="standard">Standard</option>
-                    </select>
-                </div>
-
-                <!-- Test Prep -->
-                <div class="col-md-6">
-                    <label class="form-label">Test Preparation</label>
-                    <select class="form-select" name="test_preparation_course" required>
-                        <option selected disabled value="">Select Status</option>
-                        <option value="none">None</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                </div>
-
-                <!-- Reading Score -->
-                <div class="col-md-6">
-                    <label class="form-label">Reading Score</label>
-
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="fa-solid fa-book-open"></i>
-                        </span>
-
-                        <input
-                            type="number"
-                            class="form-control"
-                            name="reading_score"
-                            placeholder="Enter Reading Score"
-                            min="0"
-                            max="100"
-                            required>
-                    </div>
-                </div>
-
-                <!-- Writing Score -->
-                <div class="col-md-6">
-                    <label class="form-label">Writing Score</label>
-
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="fa-solid fa-pen"></i>
-                        </span>
-
-                        <input
-                            type="number"
-                            class="form-control"
-                            name="writing_score"
-                            placeholder="Enter Writing Score"
-                            min="0"
-                            max="100"
-                            required>
-                    </div>
-                </div>
-
             </div>
+            <p class="sys-tagline">
+                <span>//</span> Predict Student Math Performance via <span>Machine Learning</span> <span>//</span>
+            </p>
+        </header>
 
-            <!-- BUTTON -->
-            <button type="submit" class="btn-predict">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                Predict Maths Score
-            </button>
-
-        </form>
-
-        <!-- RESULT -->
-        {% if results %}
-
-        <div class="result-card">
-
-            <h2>
-                <i class="fa-solid fa-chart-column"></i>
-                Predicted Maths Score
-            </h2>
-
-            <div class="score">
-                {{ results }}
-            </div>
-
+        <div class="cyber-divider">
+            <span class="cyber-divider-icon"><i class="fa-solid fa-chevron-right"></i></span>
+            <span class="cyber-divider-icon"><i class="fa-solid fa-chevron-right"></i></span>
         </div>
 
-        {% endif %}
+        <!-- ═══ STATS ROW ═══ -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <i class="fa-solid fa-brain stat-card-icon"></i>
+                <div class="stat-card-label">Accuracy Rate</div>
+                <div class="stat-card-value">
+                    <span class="stat-counter" data-target="87.4" data-suffix="%">0%</span>
+                </div>
+                <div class="stat-card-sub">Model Precision Score</div>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-bolt stat-card-icon"></i>
+                <div class="stat-card-label">Predictions Made</div>
+                <div class="stat-card-value">
+                    <span class="stat-counter" data-target="12847" data-suffix="">0</span>
+                </div>
+                <div class="stat-card-sub">Total Inferences</div>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-database stat-card-icon"></i>
+                <div class="stat-card-label">Training Samples</div>
+                <div class="stat-card-value">
+                    <span class="stat-counter" data-target="1000" data-suffix="">0</span>
+                </div>
+                <div class="stat-card-sub">Student Records</div>
+            </div>
+        </div>
+
+        <!-- ═══ MAIN PANEL ═══ -->
+        <div class="main-panel">
+
+            <!-- Panel Header -->
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <div class="panel-dots">
+                        <div class="panel-dot"></div>
+                        <div class="panel-dot"></div>
+                        <div class="panel-dot"></div>
+                    </div>
+                    <span class="panel-title">// ACADEMIC_PERFORMANCE_PREDICTOR.EXE</span>
+                </div>
+                <div class="panel-header-right">
+                    <span class="panel-badge badge-online">● ONLINE</span>
+                    <span class="panel-badge badge-ai">AI ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Panel Body -->
+            <div class="panel-body">
+
+                <!-- INPUT SECTION LABEL -->
+                <div class="section-label">
+                    <i class="fa-solid fa-terminal"></i>
+                    INPUT_PARAMETERS
+                </div>
+
+                <!-- PREDICTION FORM -->
+                <form id="predictionForm" action="{{ url_for('predict_datapoint') }}" method="post" novalidate>
+
+                    <div class="form-grid">
+
+                        <!-- Gender -->
+                        <div class="form-group">
+                            <div class="field-label">
+                                <i class="fa-solid fa-venus-mars"></i>
+                                Gender Profile
+                                <div class="tooltip-wrap">
+                                    <i class="fa-solid fa-circle-info" style="color:var(--text-dim);font-size:0.65rem;"></i>
+                                    <span class="tooltip-text">Select student biological gender for analysis</span>
+                                </div>
+                            </div>
+                            <div class="cyber-select-wrap">
+                                <select class="cyber-select" name="gender" id="gender" required>
+                                    <option value="" disabled selected>-- SELECT GENDER --</option>
+                                    <option value="male">MALE</option>
+                                    <option value="female">FEMALE</option>
+                                </select>
+                                <span class="field-status" id="gender_status"></span>
+                            </div>
+                        </div>
+
+                        <!-- Ethnicity -->
+                        <div class="form-group">
+                            <div class="field-label">
+                                <i class="fa-solid fa-users"></i>
+                                Race / Ethnicity
+                                <div class="tooltip-wrap">
+                                    <i class="fa-solid fa-circle-info" style="color:var(--text-dim);font-size:0.65rem;"></i>
+                                    <span class="tooltip-text">Demographic group classification</span>
+                                </div>
+                            </div>
+                            <div class="cyber-select-wrap">
+                                <select class="cyber-select" name="ethnicity" id="ethnicity" required>
+                                    <option value="" disabled selected>-- SELECT GROUP --</option>
+                                    <option value="group A">GROUP ALPHA</option>
+                                    <option value="group B">GROUP BETA</option>
+                                    <option value="group C">GROUP GAMMA</option>
+                                    <option value="group D">GROUP DELTA</option>
+                                    <option value="group E">GROUP EPSILON</option>
+                                </select>
+                                <span class="field-status" id="ethnicity_status"></span>
+                            </div>
+                        </div>
+
+                        <!-- Parental Education -->
+                        <div class="form-group">
+                            <div class="field-label">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                                Parental Education Level
+                                <div class="tooltip-wrap">
+                                    <i class="fa-solid fa-circle-info" style="color:var(--text-dim);font-size:0.65rem;"></i>
+                                    <span class="tooltip-text">Highest academic qualification of parents</span>
+                                </div>
+                            </div>
+                            <div class="cyber-select-wrap">
+                                <select class="cyber-select" name="parental_level_of_education" id="parental_level_of_education" required>
+                                    <option value="" disabled selected>-- SELECT LEVEL --</option>
+                                    <option value="associate's degree">ASSOCIATE'S DEGREE</option>
+                                    <option value="bachelor's degree">BACHELOR'S DEGREE</option>
+                                    <option value="high school">HIGH SCHOOL</option>
+                                    <option value="master's degree">MASTER'S DEGREE</option>
+                                    <option value="some college">SOME COLLEGE</option>
+                                    <option value="some high school">SOME HIGH SCHOOL</option>
+                                </select>
+                                <span class="field-status" id="edu_status"></span>
+                            </div>
+                        </div>
+
+                        <!-- Lunch Type -->
+                        <div class="form-group">
+                            <div class="field-label">
+                                <i class="fa-solid fa-utensils"></i>
+                                Lunch Program Type
+                                <div class="tooltip-wrap">
+                                    <i class="fa-solid fa-circle-info" style="color:var(--text-dim);font-size:0.65rem;"></i>
+                                    <span class="tooltip-text">School lunch subsidy classification</span>
+                                </div>
+                            </div>
+                            <div class="cyber-select-wrap">
+                                <select class="cyber-select" name="lunch" id="lunch" required>
+                                    <option value="" disabled selected>-- SELECT TYPE --</option>
+                                    <option value="free/reduced">FREE / REDUCED</option>
+                                    <option value="standard">STANDARD</option>
+                                </select>
+                                <span class="field-status" id="lunch_status"></span>
+                            </div>
+                        </div>
+
+                        <!-- Test Preparation -->
+                        <div class="form-group">
+                            <div class="field-label">
+                                <i class="fa-solid fa-clipboard-check"></i>
+                                Test Preparation Course
+                                <div class="tooltip-wrap">
+                                    <i class="fa-solid fa-circle-info" style="color:var(--text-dim);font-size:0.65rem;"></i>
+                                    <span class="tooltip-text">Whether student completed test prep course</span>
+                                </div>
+                            </div>
+                            <div class="cyber-select-wrap">
+                                <select class="cyber-select" name="test_preparation_course" id="test_preparation_course" required>
+                                    <option value="" disabled selected>-- SELECT STATUS --</option>
+                                    <option value="none">NOT COMPLETED</option>
+                                    <option value="completed">COMPLETED</option>
+                                </select>
+                                <span class="field-status" id="prep_status"></span>
+                            </div>
+                        </div>
+
+                        <!-- Reading Score -->
+                        <div class="form-group">
+                            <div class="field-label">
+                                <i class="fa-solid fa-book-open-reader"></i>
+                                Reading Score
+                                <div class="tooltip-wrap">
+                                    <i class="fa-solid fa-circle-info" style="color:var(--text-dim);font-size:0.65rem;"></i>
+                                    <span class="tooltip-text">Student's reading assessment score (0-100)</span>
+                                </div>
+                            </div>
+                            <div class="cyber-input-wrap">
+                                <i class="fa-solid fa-book-open cyber-input-icon"></i>
+                                <input
+                                    type="number"
+                                    class="cyber-input"
+                                    name="reading_score"
+                                    id="reading_score"
+                                    placeholder="ENTER 0 — 100"
+                                    min="0" max="100" required>
+                                <span class="field-status" id="read_status"></span>
+                            </div>
+                            <div class="score-display">
+                                <div class="score-bar-wrap">
+                                    <div class="score-bar-fill" id="readBar"></div>
+                                </div>
+                                <span class="score-display-val" id="readVal">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Writing Score -->
+                        <div class="form-group">
+                            <div class="field-label">
+                                <i class="fa-solid fa-pen-nib"></i>
+                                Writing Score
+                                <div class="tooltip-wrap">
+                                    <i class="fa-solid fa-circle-info" style="color:var(--text-dim);font-size:0.65rem;"></i>
+                                    <span class="tooltip-text">Student's writing assessment score (0-100)</span>
+                                </div>
+                            </div>
+                            <div class="cyber-input-wrap">
+                                <i class="fa-solid fa-pen cyber-input-icon"></i>
+                                <input
+                                    type="number"
+                                    class="cyber-input"
+                                    name="writing_score"
+                                    id="writing_score"
+                                    placeholder="ENTER 0 — 100"
+                                    min="0" max="100" required>
+                                <span class="field-status" id="write_status"></span>
+                            </div>
+                            <div class="score-display">
+                                <div class="score-bar-wrap">
+                                    <div class="score-bar-fill" id="writeBar"></div>
+                                </div>
+                                <span class="score-display-val" id="writeVal">--</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- PREDICT BUTTON -->
+                    <div class="predict-btn-wrap">
+                        <button type="submit" class="btn-predict" id="submitBtn">
+                            <div class="btn-corner tl"></div>
+                            <div class="btn-corner tr"></div>
+                            <div class="btn-corner bl"></div>
+                            <div class="btn-corner br"></div>
+                            <div class="btn-predict-inner" id="btnNormal">
+                                <i class="fa-solid fa-satellite-dish"></i>
+                                INITIATE NEURAL ANALYSIS
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                            <div class="btn-loading" id="btnLoading">
+                                <span style="font-family:'Share Tech Mono';font-size:0.75rem;color:var(--cyan);letter-spacing:3px;">PROCESSING</span>
+                                <div class="btn-loading-bar"></div>
+                                <div class="btn-loading-bar"></div>
+                                <div class="btn-loading-bar"></div>
+                                <div class="btn-loading-bar"></div>
+                                <div class="btn-loading-bar"></div>
+                            </div>
+                        </button>
+                    </div>
+
+                </form>
+
+                <!-- ═══ RESULT SECTION ═══ -->
+                {% if results %}
+                <div class="result-section">
+
+                    <div class="cyber-divider" style="margin-top:30px;">
+                        <span class="cyber-divider-icon"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="cyber-divider-icon"><i class="fa-solid fa-chevron-right"></i></span>
+                    </div>
+
+                    <div class="section-label">
+                        <i class="fa-solid fa-chart-bar"></i>
+                        ANALYSIS_OUTPUT
+                    </div>
+
+                    <div class="result-panel">
+                        <div class="result-header">
+                            <i class="fa-solid fa-circle-check result-header-icon"></i>
+                            <span class="result-header-title">// PREDICTION_COMPLETE — CONFIDENCE: HIGH</span>
+                        </div>
+                        <div class="result-body">
+                            <div class="result-label">PREDICTED MATHEMATICS SCORE</div>
+
+                            <div class="result-score-wrap">
+                                <div class="result-score" id="resultScoreDisplay">{{ results }}</div>
+                                <div class="result-score-unit">OUT OF 100 POINTS</div>
+                            </div>
+
+                            <!-- Gauge Bar -->
+                            <div class="result-gauge-wrap">
+                                <div class="result-gauge-label-row">
+                                    <span>0</span>
+                                    <span>25</span>
+                                    <span>50</span>
+                                    <span>75</span>
+                                    <span>100</span>
+                                </div>
+                                <div class="result-gauge-bar">
+                                    <div class="result-gauge-fill" id="gaugeBar" style="background: linear-gradient(90deg, var(--electric-blue), var(--cyan));"></div>
+                                </div>
+                            </div>
+
+                            <!-- Grade Badge -->
+                            <div class="result-grade-row" id="gradeRow">
+                                <!-- Dynamically inserted via JS -->
+                            </div>
+
+                            <!-- Insight -->
+                            <div class="result-insight" id="resultInsight">
+                                <!-- Dynamically inserted via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- ═══ FOOTER HUD ═══ -->
+        <div class="footer-hud">
+            <span>© 2024 N.A.I.S. — Neural Academic Intelligence System</span>
+            <div class="footer-hud-right">
+                <span>BUILD: v2.4.1</span>
+                <span>|</span>
+                <span>FRAMEWORK: Flask + CatBoost</span>
+                <span>|</span>
+                <a href="#" class="footer-link">DOCUMENTATION</a>
+            </div>
+        </div>
 
     </div>
 
-</body>
+    <script>
+        // ─── CANVAS BACKGROUND (Star Field + Hex Grid) ───
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
 
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Stars
+        const stars = Array.from({ length: 120 }, () => ({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            r: Math.random() * 1.5,
+            speed: Math.random() * 0.3 + 0.05,
+            opacity: Math.random() * 0.6 + 0.2
+        }));
+
+        // Data streams
+        const streams = Array.from({ length: 8 }, () => ({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            speed: Math.random() * 1.5 + 0.5,
+            chars: Array.from({ length: 15 }, () => String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96))),
+            opacity: Math.random() * 0.15 + 0.05
+        }));
+
+        // Connection nodes
+        const nodes = Array.from({ length: 12 }, () => ({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.3,
+            r: Math.random() * 2 + 1
+        }));
+
+        function drawBg() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Stars
+            stars.forEach(s => {
+                s.y -= s.speed;
+                if (s.y < 0) { s.y = canvas.height; s.x = Math.random() * canvas.width; }
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 245, 255, ${s.opacity})`;
+                ctx.fill();
+            });
+
+            // Nodes + connections
+            nodes.forEach(n => {
+                n.x += n.vx; n.y += n.vy;
+                if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+                if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+            });
+
+            nodes.forEach((n, i) => {
+                nodes.forEach((m, j) => {
+                    if (j <= i) return;
+                    const dist = Math.hypot(n.x - m.x, n.y - m.y);
+                    if (dist < 200) {
+                        ctx.beginPath();
+                        ctx.moveTo(n.x, n.y);
+                        ctx.lineTo(m.x, m.y);
+                        ctx.strokeStyle = `rgba(0, 245, 255, ${0.06 * (1 - dist / 200)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                });
+
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 245, 255, 0.25)';
+                ctx.fill();
+            });
+
+            // Data streams (katakana)
+            streams.forEach(s => {
+                s.y += s.speed;
+                if (s.y > canvas.height + 200) { s.y = -200; s.x = Math.random() * canvas.width; }
+                s.chars.forEach((c, i) => {
+                    ctx.fillStyle = `rgba(0, 245, 255, ${s.opacity * (1 - i / s.chars.length)})`;
+                    ctx.font = `12px 'Share Tech Mono'`;
+                    ctx.fillText(c, s.x, s.y - i * 16);
+                });
+            });
+
+            requestAnimationFrame(drawBg);
+        }
+        drawBg();
+
+        // ─── HUD CLOCK ───
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('hudTime').textContent = `${h}:${m}:${s}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ─── UPTIME COUNTER ───
+        let uptimeSeconds = 0;
+        setInterval(() => {
+            uptimeSeconds++;
+            const h = String(Math.floor(uptimeSeconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((uptimeSeconds % 3600) / 60)).padStart(2, '0');
+            const s = String(uptimeSeconds % 60).padStart(2, '0');
+            document.getElementById('uptime').textContent = `${h}:${m}:${s}`;
+        }, 1000);
+
+        // ─── STAT COUNTERS ───
+        function animateCounters() {
+            document.querySelectorAll('.stat-counter').forEach(el => {
+                const target = parseFloat(el.dataset.target);
+                const suffix = el.dataset.suffix || '';
+                const isFloat = String(target).includes('.');
+                const duration = 2000;
+                const start = performance.now();
+
+                function update(now) {
+                    const elapsed = now - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const current = target * eased;
+                    el.textContent = (isFloat ? current.toFixed(1) : Math.floor(current)) + suffix;
+                    if (progress < 1) requestAnimationFrame(update);
+                }
+                requestAnimationFrame(update);
+            });
+        }
+
+        // Intersection Observer for counters
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) { animateCounters(); statsObserver.disconnect(); }
+            });
+        });
+        statsObserver.observe(document.querySelector('.stats-row'));
+
+        // ─── FORM FIELD VALIDATION + SCORE BARS ───
+        function setFieldStatus(statusEl, valid) {
+            if (!statusEl) return;
+            statusEl.innerHTML = valid
+                ? '<i class="fa-solid fa-check"></i>'
+                : '<i class="fa-solid fa-xmark"></i>';
+            statusEl.className = 'field-status ' + (valid ? 'valid' : 'invalid');
+        }
+
+        ['gender', 'ethnicity', 'parental_level_of_education', 'lunch', 'test_preparation_course'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const statusMap = { gender: 'gender_status', ethnicity: 'ethnicity_status', parental_level_of_education: 'edu_status', lunch: 'lunch_status', test_preparation_course: 'prep_status' };
+            el.addEventListener('change', () => {
+                const statusEl = document.getElementById(statusMap[id]);
+                setFieldStatus(statusEl, el.value !== '');
+            });
+        });
+
+        // Reading score bar
+        document.getElementById('reading_score').addEventListener('input', function() {
+            const val = Math.max(0, Math.min(100, parseInt(this.value) || 0));
+            document.getElementById('readBar').style.width = val + '%';
+            document.getElementById('readVal').textContent = isNaN(parseInt(this.value)) ? '--' : val;
+            const statusEl = document.getElementById('read_status');
+            if (this.value !== '') {
+                setFieldStatus(statusEl, val >= 0 && val <= 100);
+            }
+        });
+
+        // Writing score bar
+        document.getElementById('writing_score').addEventListener('input', function() {
+            const val = Math.max(0, Math.min(100, parseInt(this.value) || 0));
+            document.getElementById('writeBar').style.width = val + '%';
+            document.getElementById('writeVal').textContent = isNaN(parseInt(this.value)) ? '--' : val;
+            const statusEl = document.getElementById('write_status');
+            if (this.value !== '') {
+                setFieldStatus(statusEl, val >= 0 && val <= 100);
+            }
+        });
+
+        // ─── FORM SUBMIT LOADING ANIMATION ───
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            const form = this;
+            const inputs = form.querySelectorAll('select, input');
+            let valid = true;
+
+            inputs.forEach(inp => {
+                if (inp.required && !inp.value) {
+                    valid = false;
+                    inp.style.borderColor = '#ff3b3b';
+                    inp.style.boxShadow = '0 0 15px rgba(255,59,59,0.3)';
+                    setTimeout(() => {
+                        inp.style.borderColor = '';
+                        inp.style.boxShadow = '';
+                    }, 2000);
+                }
+            });
+
+            if (!valid) {
+                e.preventDefault();
+                return;
+            }
+
+            document.getElementById('btnNormal').style.display = 'none';
+            document.getElementById('btnLoading').style.display = 'flex';
+        });
+
+        // ─── RESULT SECTION LOGIC ───
+        const scoreEl = document.getElementById('resultScoreDisplay');
+        if (scoreEl) {
+            const rawScore = parseFloat(scoreEl.textContent.trim());
+
+            // Animate gauge
+            setTimeout(() => {
+                const gaugeBar = document.getElementById('gaugeBar');
+                if (gaugeBar) gaugeBar.style.width = Math.min(rawScore, 100) + '%';
+            }, 400);
+
+            // Grade badge
+            const gradeRow = document.getElementById('gradeRow');
+            const insightEl = document.getElementById('resultInsight');
+
+            let gradeClass, gradeLabel, gradeInfo, insight;
+
+            if (rawScore >= 90) {
+                gradeClass = 'grade-excellent';
+                gradeLabel = '▲ EXCEPTIONAL';
+                gradeInfo = 'TOP PERCENTILE';
+                insight = `Score of <span>${rawScore.toFixed(1)}</span> indicates exceptional mathematical aptitude. Student demonstrates mastery-level performance. Recommend advanced coursework or enrichment programs.`;
+            } else if (rawScore >= 75) {
+                gradeClass = 'grade-good';
+                gradeLabel = '◆ PROFICIENT';
+                gradeInfo = 'ABOVE AVERAGE';
+                insight = `Score of <span>${rawScore.toFixed(1)}</span> reflects strong mathematical understanding. Student is performing above average. Targeted practice in advanced topics recommended.`;
+            } else if (rawScore >= 55) {
+                gradeClass = 'grade-average';
+                gradeLabel = '● DEVELOPING';
+                gradeInfo = 'AVERAGE RANGE';
+                insight = `Score of <span>${rawScore.toFixed(1)}</span> indicates developing proficiency. Student shows adequate foundation with room for improvement. Focused tutoring in core concepts advised.`;
+            } else {
+                gradeClass = 'grade-below';
+                gradeLabel = '▼ NEEDS SUPPORT';
+                gradeInfo = 'BELOW AVERAGE';
+                insight = `Score of <span>${rawScore.toFixed(1)}</span> suggests significant learning gaps. Immediate intervention and structured remedial support is strongly recommended for this student.`;
+            }
+
+            if (gradeRow) gradeRow.innerHTML = `
+                <div class="grade-badge ${gradeClass}">${gradeLabel}</div>
+                <div class="grade-badge ${gradeClass}">${gradeInfo}</div>
+            `;
+
+            if (insightEl) insightEl.innerHTML = `<i class="fa-solid fa-robot" style="color:var(--cyan);margin-right:8px;"></i>${insight}`;
+
+            // Animate score number
+            const targetScore = rawScore;
+            const duration = 1500;
+            const startTime = performance.now();
+
+            function animateScore(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 4);
+                const current = targetScore * eased;
+                scoreEl.textContent = current.toFixed(1);
+                if (progress < 1) requestAnimationFrame(animateScore);
+                else scoreEl.textContent = targetScore.toFixed(2);
+            }
+            scoreEl.textContent = '0.0';
+            setTimeout(() => requestAnimationFrame(animateScore), 500);
+
+            // Scroll to result
+            setTimeout(() => {
+                document.querySelector('.result-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+
+        // ─── FLOATING PARTICLES ───
+        function spawnParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.setProperty('--drift', (Math.random() - 0.5) * 100 + 'px');
+            p.style.animationDuration = (Math.random() * 8 + 6) + 's';
+            p.style.animationDelay = (Math.random() * 4) + 's';
+            p.style.width = p.style.height = (Math.random() * 2 + 1) + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 15000);
+        }
+
+        setInterval(spawnParticle, 600);
+
+        // ─── MOUSE PARALLAX ───
+        document.addEventListener('mousemove', (e) => {
+            const xFrac = (e.clientX / window.innerWidth - 0.5) * 12;
+            const yFrac = (e.clientY / window.innerHeight - 0.5) * 8;
+            document.querySelector('.main-panel').style.transform =
+                `perspective(1200px) rotateY(${xFrac * 0.12}deg) rotateX(${-yFrac * 0.1}deg)`;
+        });
+
+        document.querySelector('.main-panel').addEventListener('mouseleave', () => {
+            document.querySelector('.main-panel').style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg)';
+        });
+
+        // ─── CURSOR GLOW TRAIL ───
+        const cursor = document.createElement('div');
+        Object.assign(cursor.style, {
+            position: 'fixed', width: '16px', height: '16px', borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(0,245,255,0.6) 0%, transparent 70%)',
+            pointerEvents: 'none', zIndex: '99999', transform: 'translate(-50%,-50%)',
+            transition: 'width 0.2s ease, height 0.2s ease, opacity 0.2s ease',
+            opacity: '0'
+        });
+        document.body.appendChild(cursor);
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursor.style.opacity = '1';
+        });
+
+        document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; });
+
+        // ─── RIPPLE ON BUTTON CLICK ───
+        document.querySelector('.btn-predict').addEventListener('click', function(e) {
+            const ripple = document.createElement('div');
+            const rect = this.getBoundingClientRect();
+            Object.assign(ripple.style, {
+                position: 'absolute',
+                left: (e.clientX - rect.left) + 'px',
+                top: (e.clientY - rect.top) + 'px',
+                width: '0px', height: '0px',
+                background: 'rgba(0,245,255,0.3)',
+                borderRadius: '50%',
+                transform: 'translate(-50%,-50%)',
+                animation: 'rippleAnim 0.6s ease-out forwards'
+            });
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 700);
+        });
+
+        // Add ripple keyframe
+        const style = document.createElement('style');
+        style.textContent = `@keyframes rippleAnim { to { width: 300px; height: 300px; opacity: 0; } }`;
+        document.head.appendChild(style);
+
+    </script>
+
+</body>
 </html>

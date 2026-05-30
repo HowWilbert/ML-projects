@@ -3,75 +3,372 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Student Performance Predictor</title>
+    <meta name="description" content="N.A.I.S. — Neural Academic Intelligence System. Predict student math performance using advanced machine learning." />
+    <title>N.A.I.S. // System Boot</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
-        *{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
+        :root {
+            --cyan: #00f5ff;
+            --electric-blue: #0066ff;
+            --neon-green: #39ff14;
+            --dark-bg: #020510;
+            --text-dim: #3a7a8a;
         }
 
-        body{
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
             height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            justify-content: center;
+            background: var(--dark-bg);
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            position: relative;
         }
 
-        .container{
-            background: white;
-            padding: 50px;
-            border-radius: 20px;
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, rgba(0,245,255,0.03) 0px, rgba(0,245,255,0.03) 1px, transparent 1px, transparent 3px);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+        }
+
+        .boot-container {
+            position: relative;
+            z-index: 10;
             text-align: center;
-            box-shadow: 0px 10px 30px rgba(0,0,0,0.2);
-            width: 500px;
+            animation: bootIn 1.2s ease forwards;
         }
 
-        h1{
-            color: #333;
-            font-size: 40px;
-            margin-bottom: 20px;
+        @keyframes bootIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        p{
-            color: #666;
-            font-size: 18px;
-            margin-bottom: 30px;
+        .boot-logo-wrap {
+            width: 100px; height: 100px;
+            margin: 0 auto 30px;
+            border: 2px solid var(--cyan);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,245,255,0.04);
+            box-shadow: 0 0 40px rgba(0,245,255,0.3), inset 0 0 30px rgba(0,245,255,0.04);
+            animation: logoPulse 3s ease infinite;
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn{
-            display: inline-block;
-            padding: 14px 30px;
-            background: #4facfe;
-            color: white;
+        .boot-logo-wrap::after {
+            content: '';
+            position: absolute;
+            top: -100%; left: -100%;
+            width: 300%; height: 300%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0,245,255,0.1) 50%, transparent 70%);
+            animation: sheen 3s ease infinite;
+        }
+
+        @keyframes sheen {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(50%) translateY(50%); }
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(0,245,255,0.3), inset 0 0 30px rgba(0,245,255,0.04); }
+            50% { box-shadow: 0 0 60px rgba(0,245,255,0.6), inset 0 0 40px rgba(0,245,255,0.08); }
+        }
+
+        .boot-logo-wrap i {
+            font-size: 2.6rem;
+            color: var(--cyan);
+            filter: drop-shadow(0 0 12px var(--cyan));
+            position: relative;
+            z-index: 1;
+        }
+
+        .boot-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 10px;
+            background: linear-gradient(90deg, var(--cyan), var(--electric-blue), var(--cyan));
+            background-size: 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s linear infinite;
+            margin-bottom: 8px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0%; }
+            100% { background-position: 200%; }
+        }
+
+        .boot-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .boot-tagline {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            color: rgba(0,245,255,0.6);
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+        }
+
+        /* Boot progress */
+        .boot-progress {
+            width: 320px;
+            margin: 0 auto 40px;
+        }
+
+        .boot-progress-bar {
+            height: 2px;
+            background: rgba(0,245,255,0.1);
+            border-radius: 1px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            border: 1px solid rgba(0,245,255,0.1);
+        }
+
+        .boot-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--electric-blue), var(--cyan));
+            width: 0%;
+            transition: width 2s ease;
+            box-shadow: 0 0 8px var(--cyan);
+        }
+
+        .boot-progress-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #bootPercent { color: var(--cyan); }
+
+        /* CTA Button */
+        .boot-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 40px;
+            height: 60px;
+            background: transparent;
+            border: 2px solid var(--cyan);
+            border-radius: 6px;
+            color: var(--cyan);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 4px;
             text-decoration: none;
-            font-size: 18px;
-            border-radius: 10px;
-            transition: 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: btnAppear 0.5s ease 2.5s forwards;
         }
 
-        .btn:hover{
-            background: #008cff;
-            transform: scale(1.05);
+        @keyframes btnAppear {
+            to { opacity: 1; }
         }
+
+        .boot-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,245,255,0.08);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .boot-btn:hover::before { transform: scaleX(1); }
+        .boot-btn:hover {
+            box-shadow: 0 0 40px rgba(0,245,255,0.4);
+            letter-spacing: 6px;
+        }
+
+        .boot-btn i { filter: drop-shadow(0 0 6px var(--cyan)); }
+
+        /* Status chips */
+        .boot-status-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: btnAppear 0.5s ease 2.8s forwards;
+        }
+
+        .boot-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+
+        .chip-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 6px var(--neon-green);
+            animation: chipBlink 2s ease infinite;
+        }
+
+        @keyframes chipBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Student Performance Predictor</h1>
+    <canvas id="bgCanvas"></canvas>
+    <div class="grid-bg"></div>
 
-        <p>
-            Predict student math scores using Machine Learning.
-        </p>
+    <div class="boot-container">
+        <div class="boot-logo-wrap">
+            <i class="fa-solid fa-microchip"></i>
+        </div>
+        <div class="boot-title">N.A.I.S.</div>
+        <div class="boot-subtitle">Neural Academic Intelligence System</div>
+        <div class="boot-tagline">Advanced ML-Powered Student Performance Analysis</div>
 
-        <a href="/predictdata" class="btn">
-            Start Prediction
+        <div class="boot-progress">
+            <div class="boot-progress-bar">
+                <div class="boot-progress-fill" id="bootFill"></div>
+            </div>
+            <div class="boot-progress-label">
+                <span id="bootStatus">INITIALIZING SYSTEM...</span>
+                <span id="bootPercent">0%</span>
+            </div>
+        </div>
+
+        <a href="/predictdata" class="boot-btn">
+            <i class="fa-solid fa-rocket"></i>
+            LAUNCH SYSTEM
+            <i class="fa-solid fa-chevron-right"></i>
         </a>
+
+        <div class="boot-status-row">
+            <div class="boot-chip"><div class="chip-dot"></div>ML MODEL READY</div>
+            <div class="boot-chip"><div class="chip-dot"></div>FLASK SERVER ONLINE</div>
+            <div class="boot-chip"><div class="chip-dot"></div>DATABASE CONNECTED</div>
+        </div>
     </div>
+
+    <script>
+        // Canvas background
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+        const nodes = Array.from({length: 15}, () => ({
+            x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
+            vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
+            r: Math.random() * 2 + 1
+        }));
+
+        const stars = Array.from({length: 80}, () => ({
+            x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
+            r: Math.random() * 1.2, speed: Math.random() * 0.2 + 0.05, op: Math.random() * 0.5 + 0.1
+        }));
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(s => {
+                s.y -= s.speed;
+                if (s.y < 0) { s.y = canvas.height; s.x = Math.random() * canvas.width; }
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0,245,255,${s.op})`;
+                ctx.fill();
+            });
+            nodes.forEach(n => {
+                n.x += n.vx; n.y += n.vy;
+                if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+                if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+            });
+            nodes.forEach((n, i) => {
+                nodes.forEach((m, j) => {
+                    if (j <= i) return;
+                    const d = Math.hypot(n.x - m.x, n.y - m.y);
+                    if (d < 180) {
+                        ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(m.x, m.y);
+                        ctx.strokeStyle = `rgba(0,245,255,${0.08 * (1 - d/180)})`; ctx.lineWidth = 0.5; ctx.stroke();
+                    }
+                });
+                ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,245,255,0.3)'; ctx.fill();
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
+
+        // Boot progress animation
+        const statuses = ['INITIALIZING SYSTEM...', 'LOADING ML MODEL...', 'CONNECTING DATABASE...', 'CALIBRATING NEURAL NETS...', 'SYSTEM READY'];
+        let progress = 0;
+        const fillEl = document.getElementById('bootFill');
+        const statusEl = document.getElementById('bootStatus');
+        const percentEl = document.getElementById('bootPercent');
+
+        function bootProgress() {
+            const target = 100;
+            const interval = setInterval(() => {
+                progress = Math.min(progress + Math.random() * 4 + 1, target);
+                fillEl.style.width = progress + '%';
+                percentEl.textContent = Math.floor(progress) + '%';
+                const statusIdx = Math.floor((progress / 100) * (statuses.length - 1));
+                statusEl.textContent = statuses[statusIdx];
+                if (progress >= target) clearInterval(interval);
+            }, 40);
+        }
+
+        setTimeout(bootProgress, 300);
+    </script>
 
 </body>
 </html>
